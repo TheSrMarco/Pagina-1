@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UniPortal Pro - Sistema Integral de Gestión Académica</title>
+    <meta name="description" content="Prototipo web de PIUTTEC 2.0 para la gestión académica, los trámites institucionales y el refuerzo del aprendizaje en la Universidad Tecnológica de Tecámac.">
+    <title>PIUTTEC 2.0 | Prototipo web</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -78,8 +79,8 @@
                         <i class="fa-solid fa-graduation-cap text-lg"></i>
                     </div>
                     <div>
-                        <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">UniPortal</span>
-                        <span class="text-xs block text-brand-600 dark:text-brand-400 font-semibold -mt-1">CAMPUS DIGITAL</span>
+                        <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">PIUTTEC 2.0</span>
+                        <span class="text-xs block text-brand-600 dark:text-brand-400 font-semibold -mt-1">PROTOTIPO WEB</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
@@ -147,6 +148,13 @@
                         <span>Agenda y Tareas</span>
                     </div>
                     <span id="badgeTareas" class="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 px-2 py-0.5 rounded-full">4</span>
+                </button>
+
+                <button type="button" onclick="switchTab('refuerzo')" data-tab="refuerzo" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-brain w-5 text-center" aria-hidden="true"></i>
+                        <span>Refuerzo Académico</span>
+                    </div>
                 </button>
 
                 <button onclick="switchTab('herramientas')" data-tab="herramientas" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
@@ -548,6 +556,26 @@
                     </div>
                 </section>
 
+                <!-- VISTA: SIMULADOR DE REFUERZO ACADÉMICO -->
+                <section id="view-refuerzo" class="tab-view hidden fade-in" aria-labelledby="refuerzoTitle">
+                    <div class="max-w-3xl bg-white dark:bg-slate-800 p-5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-5">
+                        <div>
+                            <p class="text-xs font-semibold text-brand-700 dark:text-brand-400">Práctica de demostración · Redes digitales</p>
+                            <h2 id="refuerzoTitle" class="text-lg font-bold mt-1">Simulador de refuerzo académico</h2>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">Responde tres preguntas de fundamentos de redes y revisa la explicación de cada respuesta.</p>
+                        </div>
+                        <form id="refuerzoForm" onsubmit="submitRefuerzo(event)" onreset="clearRefuerzoResult()" onchange="clearRefuerzoResult()" class="space-y-5 text-sm">
+                            <div id="refuerzoQuestions" class="space-y-4"></div>
+                            <div class="flex flex-wrap gap-3">
+                                <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold">Revisar respuestas</button>
+                                <button type="reset" class="px-4 py-2 rounded-xl border border-slate-300 dark:border-slate-600 font-semibold">Reiniciar práctica</button>
+                            </div>
+                        </form>
+                        <p id="refuerzoScore" role="status" class="text-sm font-bold text-brand-700 dark:text-brand-400"></p>
+                        <ul id="refuerzoFeedback" class="space-y-2 text-sm text-slate-700 dark:text-slate-200"></ul>
+                    </div>
+                </section>
+
             </main>
         </div>
     </div>
@@ -898,6 +926,7 @@
 
         function resetDemoData() {
             appState = JSON.parse(JSON.stringify(defaultData));
+            document.getElementById('refuerzoForm').reset();
             saveState();
             showToast('Datos de demostración restaurados correctamente', 'info');
         }
@@ -912,6 +941,7 @@
             archivos: 'Repositorio de Archivos y Apuntes',
             reservas: 'Solicitud de Salones y Equipos de Cómputo',
             tareas: 'Agenda Académica y Control de Entregas',
+            refuerzo: 'Refuerzo Académico',
             herramientas: 'Directorio Docente y Calculadora de Promedio'
         };
 
@@ -928,7 +958,7 @@
                 }
             });
 
-            document.getElementById('pageTitle').textContent = tabTitles[tabId] || 'UniPortal';
+            document.getElementById('pageTitle').textContent = tabTitles[tabId] || 'PIUTTEC 2.0';
             if (window.innerWidth < 1024) {
                 document.getElementById('sidebar').classList.add('-translate-x-full');
                 document.getElementById('sidebarOverlay').classList.add('hidden');
@@ -1362,7 +1392,7 @@
         }
 
         function downloadSimulatedFile(nombre) {
-            const blob = new Blob([`Contenido académico del documento: ${nombre}\nGenerado desde UniPortal Pro.`], { type: 'text/plain;charset=utf-8' });
+            const blob = new Blob([`Contenido académico del documento: ${nombre}\nGenerado desde el prototipo de PIUTTEC 2.0.`], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1718,10 +1748,69 @@
             }, 3000);
         }
 
+        const refuerzoQuestions = [
+            {
+                prompt: '¿Qué servicio convierte nombres de dominio en direcciones IP?',
+                options: ['DHCP', 'DNS', 'FTP'],
+                correct: 'DNS',
+                explanation: 'DNS permite encontrar la dirección IP asociada con un nombre de dominio.'
+            },
+            {
+                prompt: '¿Qué dispositivo reenvía tráfico entre redes diferentes?',
+                options: ['Punto de acceso', 'Cable Ethernet', 'Router'],
+                correct: 'Router',
+                explanation: 'El router utiliza su tabla de enrutamiento para enviar paquetes hacia otras redes.'
+            },
+            {
+                prompt: '¿Qué servicio puede asignar una dirección IP automáticamente?',
+                options: ['DHCP', 'HTTPS', 'SSH'],
+                correct: 'DHCP',
+                explanation: 'DHCP asigna direcciones IP y otros parámetros de red a los dispositivos.'
+            }
+        ];
+
+        function renderRefuerzo() {
+            document.getElementById('refuerzoQuestions').innerHTML = refuerzoQuestions.map((question, index) => `
+                <fieldset class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 space-y-2">
+                    <legend class="px-1 font-semibold">${index + 1}. ${question.prompt}</legend>
+                    ${question.options.map(option => `
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input type="radio" name="refuerzo-${index}" value="${option}" required class="accent-indigo-600">
+                            <span>${option}</span>
+                        </label>
+                    `).join('')}
+                </fieldset>
+            `).join('');
+        }
+
+        function submitRefuerzo(event) {
+            event.preventDefault();
+            const answers = new FormData(event.currentTarget);
+            const feedback = document.getElementById('refuerzoFeedback');
+            let score = 0;
+
+            feedback.replaceChildren();
+            refuerzoQuestions.forEach((question, index) => {
+                const correct = answers.get(`refuerzo-${index}`) === question.correct;
+                if (correct) score++;
+
+                const item = document.createElement('li');
+                item.textContent = `${index + 1}. ${correct ? 'Correcta' : 'Incorrecta'}. Respuesta: ${question.correct}. ${question.explanation}`;
+                feedback.append(item);
+            });
+            document.getElementById('refuerzoScore').textContent = `Resultado: ${score} de ${refuerzoQuestions.length} respuestas correctas.`;
+        }
+
+        function clearRefuerzoResult() {
+            document.getElementById('refuerzoScore').textContent = '';
+            document.getElementById('refuerzoFeedback').replaceChildren();
+        }
+
         // Inicialización al cargar la ventana
         window.onload = function () {
             document.getElementById('asistenciaDateInput').value = '2026-11-06';
             updateAllViews();
+            renderRefuerzo();
         };
     </script>
 </body>
