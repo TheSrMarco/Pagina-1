@@ -1,0 +1,1728 @@
+<!DOCTYPE html>
+<html lang="es" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniPortal Pro - Sistema Integral de Gestión Académica</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+        .fade-in {
+            animation: fadeIn 0.25s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 antialiased selection:bg-brand-500 selection:text-white overflow-hidden">
+
+    <!-- Contenedor Principal -->
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Overlay para móvil -->
+        <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-20 hidden lg:hidden backdrop-blur-xs transition-opacity"></div>
+
+        <!-- Barra Lateral (Sidebar) -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 w-64 bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col transition-transform duration-300 -translate-x-full lg:translate-x-0 lg:static lg:inset-0">
+            <!-- Logo -->
+            <div class="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-brand-500/30">
+                        <i class="fa-solid fa-graduation-cap text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight text-slate-900 dark:text-white">UniPortal</span>
+                        <span class="text-xs block text-brand-600 dark:text-brand-400 font-semibold -mt-1">CAMPUS DIGITAL</span>
+                    </div>
+                </div>
+                <button onclick="toggleMobileSidebar()" class="lg:hidden text-slate-500 hover:text-slate-700 dark:text-slate-400">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Perfil Rápido del Estudiante/Docente -->
+            <div class="p-4 border-b border-slate-100 dark:border-slate-700/60 bg-slate-50/50 dark:bg-slate-800/50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-sm border border-brand-200 dark:border-brand-700">
+                        AL
+                    </div>
+                    <div class="overflow-hidden">
+                        <h4 class="text-sm font-semibold truncate">Alejandro López</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 truncate">Ing. en Sistemas • 7° Sem</p>
+                        <span class="inline-block mt-0.5 text-[10px] font-medium px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 rounded-full">Matrícula: 2026-0842</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menú de Navegación -->
+            <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1" id="navLinks">
+                <button onclick="switchTab('dashboard')" data-tab="dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all bg-brand-50 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Panel Principal</span>
+                </button>
+
+                <button onclick="switchTab('materias')" data-tab="materias" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-book-open w-5 text-center"></i>
+                        <span>Mis Materias</span>
+                    </div>
+                    <span id="badgeMaterias" class="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">6</span>
+                </button>
+
+                <button onclick="switchTab('asistencias')" data-tab="asistencias" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <i class="fa-solid fa-calendar-check w-5 text-center"></i>
+                    <span>Control de Asistencias</span>
+                </button>
+
+                <button onclick="switchTab('archivos')" data-tab="archivos" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-folder-open w-5 text-center"></i>
+                        <span>Gestor de Archivos</span>
+                    </div>
+                    <span id="badgeArchivos" class="text-xs bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded-full">8</span>
+                </button>
+
+                <button onclick="switchTab('reservas')" data-tab="reservas" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-laptop-code w-5 text-center"></i>
+                        <span>Salones y Equipos</span>
+                    </div>
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                </button>
+
+                <div class="pt-3 pb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Herramientas Extra
+                </div>
+
+                <button onclick="switchTab('tareas')" data-tab="tareas" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-list-check w-5 text-center"></i>
+                        <span>Agenda y Tareas</span>
+                    </div>
+                    <span id="badgeTareas" class="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 px-2 py-0.5 rounded-full">4</span>
+                </button>
+
+                <button onclick="switchTab('herramientas')" data-tab="herramientas" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">
+                    <i class="fa-solid fa-calculator w-5 text-center"></i>
+                    <span>Directorio y Promedio</span>
+                </button>
+            </nav>
+
+            <!-- Footer de Sidebar: Almacenamiento en nube -->
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80">
+                <div class="flex justify-between text-xs mb-1">
+                    <span class="text-slate-500 dark:text-slate-400 font-medium">Nube Académica</span>
+                    <span id="storageText" class="font-semibold text-slate-700 dark:text-slate-300">42.5 MB / 5 GB</span>
+                </div>
+                <div class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div id="storageBar" class="h-full bg-brand-600 rounded-full transition-all duration-300" style="width: 18%"></div>
+                </div>
+                <button onclick="openUploadModal()" class="mt-3 w-full py-2 px-3 bg-brand-600 hover:bg-brand-700 text-white font-medium text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Subir Archivo Rápido
+                </button>
+            </div>
+        </aside>
+
+        <!-- Área de Contenido Principal -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+
+            <!-- Barra Superior (Header) -->
+            <header class="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-4 lg:px-8 z-10">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <i class="fa-solid fa-bars text-lg"></i>
+                    </button>
+                    <div>
+                        <h1 id="pageTitle" class="text-lg sm:text-xl font-bold text-slate-800 dark:text-white">Panel Principal</h1>
+                        <p id="currentDateDisplay" class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Viernes, 6 de Noviembre de 2026</p>
+                    </div>
+                </div>
+
+                <!-- Buscador Global y Acciones -->
+                <div class="flex items-center gap-3">
+                    <!-- Botón Rápido Pedir Equipo/Salón -->
+                    <button onclick="switchTab('reservas'); openReservaModal()" class="hidden sm:flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl shadow-xs transition">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Solicitar Salón / Equipo</span>
+                    </button>
+
+                    <!-- Botón Modo Oscuro -->
+                    <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Cambiar Tema">
+                        <i id="themeIcon" class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <!-- Botón Reiniciar Datos Demo -->
+                    <button onclick="resetDemoData()" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="Restaurar datos de ejemplo">
+                        <i class="fa-solid fa-rotate-right"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Contenedor de Vistas (Scrollable) -->
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+                <!-- ==========================================
+                     1. VISTA: PANEL PRINCIPAL (DASHBOARD)
+                     ========================================== -->
+                <section id="view-dashboard" class="tab-view fade-in space-y-6">
+                    <!-- Tarjetas de Resumen (KPIs) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div onclick="switchTab('materias')" class="cursor-pointer bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Materias Activas</p>
+                                <h3 id="kpiMaterias" class="text-2xl font-bold mt-1">6</h3>
+                                <p id="kpiPromedioGlobal" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-1">Promedio: 9.1</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-book"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="switchTab('asistencias')" class="cursor-pointer bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Asistencia Global</p>
+                                <h3 id="kpiAsistencia" class="text-2xl font-bold mt-1">92%</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Mínimo requerido: 80%</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-user-check"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="switchTab('reservas')" class="cursor-pointer bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Salones y Equipos</p>
+                                <h3 id="kpiReservas" class="text-2xl font-bold mt-1">2 Activos</h3>
+                                <p class="text-xs text-amber-600 dark:text-amber-400 font-medium mt-1">1 entrega hoy 18:00</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-computer"></i>
+                            </div>
+                        </div>
+
+                        <div onclick="switchTab('archivos')" class="cursor-pointer bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 shadow-xs hover:shadow-md transition flex items-center justify-between">
+                            <div>
+                                <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Archivos Subidos</p>
+                                <h3 id="kpiArchivos" class="text-2xl font-bold mt-1">8</h3>
+                                <p class="text-xs text-brand-600 dark:text-brand-400 font-medium mt-1">Apuntes, prácticas y PDFs</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl">
+                                <i class="fa-solid fa-cloud"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Segunda Fila del Dashboard: Horario de Hoy + Préstamos Activos y Avisos -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Horario y Clases del Día -->
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-xs">
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 class="font-bold text-base">Horario y Clases de Hoy</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Acceso directo para pasar asistencia o subir apuntes</p>
+                                </div>
+                                <button onclick="switchTab('materias')" class="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline">Ver todas</button>
+                            </div>
+                            <div id="dashboardScheduleList" class="space-y-3">
+                                <!-- Dinámico por JS -->
+                            </div>
+                        </div>
+
+                        <!-- Panel Derecho: Préstamos Activos y Avisos -->
+                        <div class="space-y-6">
+                            <!-- Mis Reservas Activas -->
+                            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-xs">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="font-bold text-base">Mis Préstamos y Salones</h3>
+                                    <button onclick="switchTab('reservas')" class="text-xs text-brand-600 dark:text-brand-400 font-semibold hover:underline">Pedir nuevo</button>
+                                </div>
+                                <div id="dashboardActiveLoans" class="space-y-2.5">
+                                    <!-- Dinámico por JS -->
+                                </div>
+                            </div>
+
+                            <!-- Avisos Institucionales -->
+                            <div class="bg-gradient-to-br from-brand-600 to-indigo-800 text-white rounded-2xl p-5 shadow-md">
+                                <div class="flex items-center gap-2 text-indigo-200 text-xs font-semibold uppercase tracking-wider mb-2">
+                                    <i class="fa-solid fa-bullhorn"></i> Avisos Institucionales
+                                </div>
+                                <h4 class="font-bold text-base mb-1">Período de Proyectos Finales</h4>
+                                <p class="text-xs text-indigo-100 leading-relaxed mb-3">
+                                    La reserva de Laboratorios de Cómputo y Kits de Redes para proyectos finales ya está habilitada en horario extendido hasta las 21:00 hrs.
+                                </p>
+                                <div class="flex gap-2">
+                                    <button onclick="switchTab('reservas')" class="bg-white text-brand-700 hover:bg-indigo-50 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                                        Reservar Laboratorio
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     2. VISTA: GESTIÓN DE MATERIAS
+                     ========================================== -->
+                <section id="view-materias" class="tab-view hidden fade-in space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                        <div>
+                            <h2 class="text-lg font-bold">Mis Materias Inscritas</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Administra tus asignaturas, consulta profesores, salones, calificaciones parciales y créditos.</p>
+                        </div>
+                        <button onclick="openMateriaModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Agregar Materia
+                        </button>
+                    </div>
+
+                    <!-- Grid de Tarjetas de Materias -->
+                    <div id="materiasGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                        <!-- Renderizado por JS -->
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     3. VISTA: CONTROL DE ASISTENCIAS
+                     ========================================== -->
+                <section id="view-asistencias" class="tab-view hidden fade-in space-y-6">
+                    <!-- Barra superior de registro rápido -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-4">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div>
+                                <h2 class="text-lg font-bold">Registro y Control de Asistencias</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">El reglamento institucional exige un mínimo de <span class="font-bold text-slate-700 dark:text-slate-200">80% de asistencia</span> para derecho a examen final.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <input type="date" id="asistenciaDateInput" class="text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <button onclick="markAllPresentToday()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-check-double"></i> Marcar Presente en Todas Hoy
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Semáforo de Asistencia por Materia -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 overflow-hidden shadow-xs">
+                        <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                            <h3 class="font-bold text-sm">Estado de Asistencia por Asignatura</h3>
+                            <div class="flex items-center gap-3 text-xs">
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Presente</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Retardo</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-sky-500"></span> Justificado</span>
+                                <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Falta</span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-[11px] font-semibold uppercase text-slate-400 bg-slate-50/50 dark:bg-slate-800/50">
+                                        <th class="py-3.5 px-4">Materia / Aula</th>
+                                        <th class="py-3.5 px-4 text-center">Sesiones</th>
+                                        <th class="py-3.5 px-4 text-center">Desglose (P / R / J / F)</th>
+                                        <th class="py-3.5 px-4">Porcentaje y Estado</th>
+                                        <th class="py-3.5 px-4 text-right">Registrar Asistencia Rápida</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="asistenciasTableBody" class="divide-y divide-slate-200/70 dark:divide-slate-700 text-sm">
+                                    <!-- Renderizado por JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Historial Reciente de Registros -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-xs">
+                        <h3 class="font-bold text-sm mb-3">Bitácora Reciente de Asistencias Registradas</h3>
+                        <div id="asistenciaHistoryLogs" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            <!-- Renderizado por JS -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     4. VISTA: GESTOR DE ARCHIVOS Y APUNTES
+                     ========================================== -->
+                <section id="view-archivos" class="tab-view hidden fade-in space-y-6">
+                    <!-- Barra de herramientas del Gestor de Archivos -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold">Repositorio y Gestor de Archivos Académicos</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Guarda y organiza tus apuntes, tareas, prácticas de laboratorio, PDFs y códigos por materia.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <!-- Buscador de archivos -->
+                            <div class="relative flex-1 sm:w-60">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input type="text" id="fileSearchInput" oninput="renderFiles()" placeholder="Buscar archivo o etiqueta..." class="w-full pl-8 pr-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <!-- Filtro por Materia -->
+                            <select id="fileSubjectFilter" onchange="renderFiles()" class="text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="ALL">Todas las materias</option>
+                            </select>
+                            <!-- Botón Subir -->
+                            <button onclick="openUploadModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Subir Archivo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filtros de Categoría (Pills) -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1" id="fileCategoryPills">
+                        <button onclick="setFileCategory('ALL')" data-cat="ALL" class="file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white transition">Todos</button>
+                        <button onclick="setFileCategory('Apuntes')" data-cat="Apuntes" class="file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Apuntes</button>
+                        <button onclick="setFileCategory('Tareas')" data-cat="Tareas" class="file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Tareas / Entregas</button>
+                        <button onclick="setFileCategory('Prácticas')" data-cat="Prácticas" class="file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Prácticas / Código</button>
+                        <button onclick="setFileCategory('Guías')" data-cat="Guías" class="file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition">Guías y Libros</button>
+                    </div>
+
+                    <!-- Grid de Archivos -->
+                    <div id="filesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <!-- Renderizado por JS -->
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     5. VISTA: PEDIR SALONES Y EQUIPOS DE CÓMPUTO
+                     ========================================== -->
+                <section id="view-reservas" class="tab-view hidden fade-in space-y-6">
+                    <!-- Encabezado de Reservas -->
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold">Reserva de Salones, Laboratorios y Equipos de Cómputo</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Solicita aulas audiovisuales, salas de estudio, laptops, proyectores o kits de laboratorio en tiempo real.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="filterResources('ALL')" data-res="ALL" class="res-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white">Todos</button>
+                            <button onclick="filterResources('Salón')" data-res="Salón" class="res-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">Salones y Labs</button>
+                            <button onclick="filterResources('Equipo')" data-res="Equipo" class="res-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">Equipos de Cómputo</button>
+                        </div>
+                    </div>
+
+                    <!-- Catálogo de Salones y Equipos -->
+                    <div id="resourcesCatalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                        <!-- Renderizado por JS -->
+                    </div>
+
+                    <!-- Tabla de Mis Solicitudes y Préstamos -->
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 overflow-hidden shadow-xs">
+                        <div class="p-5 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-sm">Mis Solicitudes de Salones y Préstamos de Equipo</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Puedes liberar el salón o devolver el equipo al terminar tu sesión</p>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse">
+                                <thead>
+                                    <tr class="border-b border-slate-200 dark:border-slate-700 text-[11px] font-semibold uppercase text-slate-400 bg-slate-50/50 dark:bg-slate-800/50">
+                                        <th class="py-3 px-4">Folio / Recurso</th>
+                                        <th class="py-3 px-4">Categoría</th>
+                                        <th class="py-3 px-4">Fecha y Horario</th>
+                                        <th class="py-3 px-4">Motivo / Materia</th>
+                                        <th class="py-3 px-4">Estado</th>
+                                        <th class="py-3 px-4 text-right">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="loansTableBody" class="divide-y divide-slate-200/70 dark:divide-slate-700 text-sm">
+                                    <!-- Renderizado por JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     6. VISTA: AGENDA Y TAREAS PENDIENTES
+                     ========================================== -->
+                <section id="view-tareas" class="tab-view hidden fade-in space-y-6">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-bold">Control de Entregas, Exámenes y Proyectos</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Organiza tus pendientes académicos por prioridad y fecha límite.</p>
+                        </div>
+                        <button onclick="openTaskModal()" class="bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nueva Tarea / Entrega
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Columna Pendientes -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                            <h3 class="font-bold text-sm mb-4 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Tareas Pendientes por Entregar
+                            </h3>
+                            <div id="pendingTasksList" class="space-y-3"></div>
+                        </div>
+
+                        <!-- Columna Completadas -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700">
+                            <h3 class="font-bold text-sm mb-4 flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Entregas Completadas
+                            </h3>
+                            <div id="completedTasksList" class="space-y-3"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ==========================================
+                     7. VISTA: DIRECTORIO Y CALCULADORA PROMEDIO
+                     ========================================== -->
+                <section id="view-herramientas" class="tab-view hidden fade-in space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Simulador de Promedio Ponderado -->
+                        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-4">
+                            <div>
+                                <h3 class="font-bold text-base">Calculadora de Promedio y Beca</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Simula tus calificaciones finales para conocer tu promedio semestral.</p>
+                            </div>
+                            <div id="gpaInputsContainer" class="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                                <!-- Dinámico por JS -->
+                            </div>
+                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-slate-500 block">Promedio Estimado</span>
+                                    <span id="gpaStatusText" class="text-xs font-semibold text-emerald-600">Excelencia Académica (Conserva Beca)</span>
+                                </div>
+                                <span id="calculatedGpaValue" class="text-3xl font-extrabold text-brand-600 dark:text-brand-400">9.1</span>
+                            </div>
+                        </div>
+
+                        <!-- Directorio de Profesores y Cubículos -->
+                        <div class="lg:col-span-2 bg-white dark:bg-slate-800 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700 space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="font-bold text-base">Directorio de Profesores y Asesorías</h3>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Correos institucionales, cubículos y horarios de atención a alumnos.</p>
+                                </div>
+                            </div>
+                            <div id="profesoresDirectoryGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <!-- Dinámico por JS -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         MODALES INTERACTIVOS
+         ========================================== -->
+
+    <!-- MODAL 1: RESERVAR SALÓN O EQUIPO DE CÓMPUTO -->
+    <div id="modalReserva" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 shadow-xl fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-laptop-file text-brand-600"></i> Solicitar Salón o Equipo
+                </h3>
+                <button onclick="closeModal('modalReserva')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="submitReserva(event)" class="space-y-4 mt-4 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1">Seleccionar Salón o Equipo de Cómputo</label>
+                    <select id="reservaResourceSelect" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand-500"></select>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold mb-1">Fecha de Uso</label>
+                        <input type="date" id="reservaFecha" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Bloque Horario</label>
+                        <select id="reservaHorario" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                            <option value="09:00 - 11:00">09:00 - 11:00 hrs</option>
+                            <option value="11:00 - 13:00">11:00 - 13:00 hrs</option>
+                            <option value="13:00 - 15:00">13:00 - 15:00 hrs</option>
+                            <option value="16:00 - 18:00">16:00 - 18:00 hrs</option>
+                            <option value="18:00 - 20:00">18:00 - 20:00 hrs</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Materia o Motivo Académico</label>
+                    <input type="text" id="reservaMotivo" required placeholder="Ej. Práctica de Redes Cisco / Exposición de Proyecto" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalReserva')" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 font-medium">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold">Confirmar Reserva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 2: SUBIR ARCHIVO -->
+    <div id="modalUpload" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 shadow-xl fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up text-brand-600"></i> Subir Archivo al Repositorio
+                </h3>
+                <button onclick="closeModal('modalUpload')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="submitFileUpload(event)" class="space-y-4 mt-4 text-xs">
+                <!-- Zona Drag & Drop Simulada -->
+                <div onclick="document.getElementById('realFileInput').click()" class="border-2 border-dashed border-brand-300 dark:border-brand-700 hover:border-brand-500 rounded-2xl p-5 text-center cursor-pointer bg-brand-50/40 dark:bg-brand-900/10 transition">
+                    <i class="fa-solid fa-file-circle-plus text-2xl text-brand-600 mb-2"></i>
+                    <p class="font-semibold text-slate-700 dark:text-slate-200" id="selectedFileNameDisplay">Haz clic para elegir un archivo de tu equipo</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">PDF, DOCX, XLSX, ZIP, PY, SQL o Imágenes (Máx 50MB)</p>
+                    <input type="file" id="realFileInput" onchange="handleRealFileSelect(event)" class="hidden">
+                </div>
+
+                <div>
+                    <label class="block font-semibold mb-1">Nombre del Documento / Recurso</label>
+                    <input type="text" id="uploadFileTitle" required placeholder="Ej. Reporte_Practica3_Redes.pdf" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold mb-1">Materia Asociada</label>
+                        <select id="uploadFileSubject" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2"></select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Categoría</label>
+                        <select id="uploadFileCategory" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                            <option value="Apuntes">Apuntes</option>
+                            <option value="Tareas">Tareas / Entregas</option>
+                            <option value="Prácticas">Prácticas / Código</option>
+                            <option value="Guías">Guías y Libros</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalUpload')" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-medium">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold">Guardar en la Nube</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: AGREGAR NUEVA MATERIA -->
+    <div id="modalMateria" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 shadow-xl fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-book-medical text-brand-600"></i> Dar de Alta Materia
+                </h3>
+                <button onclick="closeModal('modalMateria')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="submitNewMateria(event)" class="space-y-3.5 mt-4 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1">Nombre de la Asignatura</label>
+                    <input type="text" id="matNombre" required placeholder="Ej. Ciberseguridad y Criptografía" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold mb-1">Clave</label>
+                        <input type="text" id="matCodigo" required placeholder="Ej. TICS-709" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Salón / Laboratorio</label>
+                        <input type="text" id="matSalon" required placeholder="Ej. Lab Redes B-204" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold mb-1">Profesor(a)</label>
+                        <input type="text" id="matProfesor" required placeholder="Ej. Dr. Roberto Méndez" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Horario</label>
+                        <input type="text" id="matHorario" required placeholder="Ej. Lun y Mié 11:00 - 13:00" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalMateria')" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-medium">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold">Agregar Materia</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: AGREGAR TAREA -->
+    <div id="modalTask" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-700 shadow-xl fade-in">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-calendar-plus text-brand-600"></i> Registrar Nueva Entrega / Tarea
+                </h3>
+                <button onclick="closeModal('modalTask')" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="submitNewTask(event)" class="space-y-3.5 mt-4 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1">Título de la Tarea o Proyecto</label>
+                    <input type="text" id="taskTitulo" required placeholder="Ej. Entregar Modelo Entidad-Relación en PDF" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold mb-1">Materia</label>
+                        <select id="taskMateriaSelect" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2"></select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold mb-1">Fecha Límite</label>
+                        <input type="date" id="taskFecha" required class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Prioridad</label>
+                    <select id="taskPrioridad" class="w-full rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-2">
+                        <option value="Alta">Alta (Examen / Proyecto Final)</option>
+                        <option value="Media" selected>Media (Tarea Semanal)</option>
+                        <option value="Baja">Baja (Lectura / Opcional)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('modalTask')" class="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 font-medium">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold">Guardar Tarea</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contenedor de Notificaciones (Toast) -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-xs w-full pointer-events-none"></div>
+
+    <!-- ==========================================
+         LÓGICA JAVASCRIPT Y ESTADO EN MEMORIA
+         ========================================== -->
+    <script>
+        const STORAGE_KEY = 'UNIPORTAL_PRO_STATE_V1';
+        let currentFileCategory = 'ALL';
+        let currentResourceFilter = 'ALL';
+
+        // Datos iniciales realistas
+        const defaultData = {
+            materias: [
+                {
+                    id: 'MAT-01',
+                    codigo: 'ING-701',
+                    nombre: 'Desarrollo de Aplicaciones Web',
+                    profesor: 'Dra. Elena Rostova',
+                    correoProf: 'erostova@universidad.edu.mx',
+                    cubiculo: 'Edificio TICS - Cubículo 12',
+                    horario: 'Lun, Mié y Vie 09:00 - 11:00',
+                    aula: 'Lab Cómputo C-102',
+                    color: 'indigo',
+                    calificacion: 9.5,
+                    presentes: 22,
+                    retardos: 1,
+                    justificados: 1,
+                    faltas: 0
+                },
+                {
+                    id: 'MAT-02',
+                    codigo: 'ING-702',
+                    nombre: 'Bases de Datos Distribuidas',
+                    profesor: 'Mtro. Carlos Mendoza',
+                    correoProf: 'cmendoza@universidad.edu.mx',
+                    cubiculo: 'Edificio Posgrado - Cubículo 04',
+                    horario: 'Mar y Jue 11:00 - 13:00',
+                    aula: 'Aula Magna B-201',
+                    color: 'emerald',
+                    calificacion: 8.8,
+                    presentes: 18,
+                    retardos: 2,
+                    justificados: 0,
+                    faltas: 2
+                },
+                {
+                    id: 'MAT-03',
+                    codigo: 'ING-703',
+                    nombre: 'Redes y Seguridad Informática',
+                    profesor: 'Ing. Javier Solís',
+                    correoProf: 'jsolis@universidad.edu.mx',
+                    cubiculo: 'Centro de Datos - Planta Baja',
+                    horario: 'Lun y Mié 13:00 - 15:00',
+                    aula: 'Lab Redes Cisco A-105',
+                    color: 'amber',
+                    calificacion: 9.2,
+                    presentes: 15,
+                    retardos: 1,
+                    justificados: 0,
+                    faltas: 4
+                },
+                {
+                    id: 'MAT-04',
+                    codigo: 'ING-704',
+                    nombre: 'Inteligencia Artificial Aplicada',
+                    profesor: 'Dr. Arturo Vega',
+                    correoProf: 'avega@universidad.edu.mx',
+                    cubiculo: 'Instituto de Inv. - Cubículo 09',
+                    horario: 'Mar y Jue 09:00 - 11:00',
+                    aula: 'Lab GPU D-301',
+                    color: 'rose',
+                    calificacion: 9.6,
+                    presentes: 20,
+                    retardos: 0,
+                    justificados: 1,
+                    faltas: 0
+                },
+                {
+                    id: 'MAT-05',
+                    codigo: 'ING-705',
+                    nombre: 'Arquitectura de Computadoras y Nube',
+                    profesor: 'Mtra. Sofía Herrera',
+                    correoProf: 'sherrera@universidad.edu.mx',
+                    cubiculo: 'Edificio TICS - Cubículo 07',
+                    horario: 'Vie 11:00 - 14:00',
+                    aula: 'Salón Audiovisual E-101',
+                    color: 'sky',
+                    calificacion: 8.5,
+                    presentes: 11,
+                    retardos: 1,
+                    justificados: 0,
+                    faltas: 3
+                },
+                {
+                    id: 'MAT-06',
+                    codigo: 'ING-706',
+                    nombre: 'Gestión de Proyectos de Software',
+                    profesor: 'Lic. Mariana Torres',
+                    correoProf: 'mtorres@universidad.edu.mx',
+                    cubiculo: 'Incubadora de Empresas - Sala 2',
+                    horario: 'Mar y Jue 16:00 - 17:30',
+                    aula: 'Aula A-208',
+                    color: 'purple',
+                    calificacion: 9.0,
+                    presentes: 19,
+                    retardos: 0,
+                    justificados: 1,
+                    faltas: 1
+                }
+            ],
+            archivos: [
+                { id: 'FIL-1', nombre: 'Arquitectura_Microservicios_Docker.pdf', materia: 'Desarrollo de Aplicaciones Web', categoria: 'Apuntes', tamano: '4.2 MB', fecha: '05 Nov 2026', tipo: 'pdf' },
+                { id: 'FIL-2', nombre: 'Script_Fragmentacion_SQL_Cluster.sql', materia: 'Bases de Datos Distribuidas', categoria: 'Prácticas', tamano: '1.8 MB', fecha: '04 Nov 2026', tipo: 'code' },
+                { id: 'FIL-3', nombre: 'Topologia_VLAN_OSPF_PacketTracer.zip', materia: 'Redes y Seguridad Informática', categoria: 'Prácticas', tamano: '12.4 MB', fecha: '03 Nov 2026', tipo: 'zip' },
+                { id: 'FIL-4', nombre: 'Modelo_Red_Neuronal_PyTorch.ipynb', materia: 'Inteligencia Artificial Aplicada', categoria: 'Tareas', tamano: '6.5 MB', fecha: '02 Nov 2026', tipo: 'code' },
+                { id: 'FIL-5', nombre: 'Guia_Examen_Segundo_Parcial_BD.pdf', materia: 'Bases de Datos Distribuidas', categoria: 'Guías', tamano: '3.1 MB', fecha: '01 Nov 2026', tipo: 'pdf' },
+                { id: 'FIL-6', nombre: 'Cronograma_Scrum_Sprint_Final.xlsx', materia: 'Gestión de Proyectos de Software', categoria: 'Tareas', tamano: '2.0 MB', fecha: '30 Oct 2026', tipo: 'excel' },
+                { id: 'FIL-7', nombre: 'Manual_Despliegue_Kubernetes_AWS.docx', materia: 'Arquitectura de Computadoras y Nube', categoria: 'Apuntes', tamano: '5.7 MB', fecha: '28 Oct 2026', tipo: 'word' },
+                { id: 'FIL-8', nombre: 'Auditoria_Firewall_Reglas_IPTables.pdf', materia: 'Redes y Seguridad Informática', categoria: 'Tareas', tamano: '6.8 MB', fecha: '25 Oct 2026', tipo: 'pdf' }
+            ],
+            recursos: [
+                { id: 'RES-01', nombre: 'Laboratorio de Cómputo C-102 (35 PCs)', tipo: 'Salón', ubicacion: 'Edificio C • Planta Baja', specs: 'Core i7, 32GB RAM, Fibra Óptica, Proyector 4K', disponible: true, icono: 'fa-network-wired' },
+                { id: 'RES-02', nombre: 'Sala Audiovisual Multimedia B-204', tipo: 'Salón', ubicacion: 'Edificio B • Nivel 2', specs: 'Pantalla Interactiva 85", Audio Envolvente, 40 lugares', disponible: true, icono: 'fa-chalkboard-user' },
+                { id: 'RES-03', nombre: 'Cubículo de Estudio Grupal #4', tipo: 'Salón', ubicacion: 'Biblioteca Central • Piso 3', specs: 'Pizarrón de cristal, Pantalla HDMI, Mesa para 8 personas', disponible: false, icono: 'fa-people-roof' },
+                { id: 'RES-04', nombre: 'MacBook Pro 16" M3 Max (Estación #08)', tipo: 'Equipo', ubicacion: 'Módulo de Préstamos TICS', specs: '36GB RAM, Xcode, Docker, Suite Adobe y Compiladores', disponible: true, icono: 'fa-laptop' },
+                { id: 'RES-05', nombre: 'Laptop Dell Precision Workstation #14', tipo: 'Equipo', ubicacion: 'Módulo de Préstamos TICS', specs: 'GPU NVIDIA RTX 4070, Ubuntu / Windows Dual Boot', disponible: false, icono: 'fa-laptop-code' },
+                { id: 'RES-06', nombre: 'Proyector Portátil Epson Laser + HDMI', tipo: 'Equipo', ubicacion: 'Control Escolar Edificio A', specs: '4000 Lúmenes, Adaptador USB-C y Extensión de 10m', disponible: true, icono: 'fa-video' },
+                { id: 'RES-07', nombre: 'Kit de Redes Cisco (2 Routers + 2 Switches)', tipo: 'Equipo', ubicacion: 'Laboratorio Cisco A-105', specs: 'Cables consola, Seriales DCE/DTE y Guía de Topología', disponible: true, icono: 'fa-server' },
+                { id: 'RES-08', nombre: 'Kit Robótica e IoT (Raspberry Pi 5 + Sensores)', tipo: 'Equipo', ubicacion: 'Laboratorio Electrónica', specs: 'Protoboard, Multímetro Digital, Cámara y Sensores Lidar', disponible: true, icono: 'fa-microchip' }
+            ],
+            prestamos: [
+                { id: 'SOL-904', recursoId: 'RES-05', recursoNombre: 'Laptop Dell Precision Workstation #14', categoria: 'Equipo', fecha: '2026-11-06', horario: '13:00 - 15:00', motivo: 'Entrenamiento de Red Neuronal - IA Aplicada', estado: 'En uso' },
+                { id: 'SOL-903', recursoId: 'RES-03', recursoNombre: 'Cubículo de Estudio Grupal #4', categoria: 'Salón', fecha: '2026-11-06', horario: '16:00 - 18:00', motivo: 'Revisión de Sprint con Equipo - Gestión de Proyectos', estado: 'Aprobado' },
+                { id: 'SOL-891', recursoId: 'RES-06', recursoNombre: 'Proyector Portátil Epson Laser + HDMI', categoria: 'Equipo', fecha: '2026-11-03', horario: '09:00 - 11:00', motivo: 'Exposición de Arquitectura Web', estado: 'Devuelto' }
+            ],
+            bitacoraAsistencia: [
+                { fecha: '06 Nov 2026', materia: 'Desarrollo de Aplicaciones Web', estado: 'Presente' },
+                { fecha: '05 Nov 2026', materia: 'Inteligencia Artificial Aplicada', estado: 'Presente' },
+                { fecha: '04 Nov 2026', materia: 'Redes y Seguridad Informática', estado: 'Retardo' }
+            ],
+            tareas: [
+                { id: 'TSK-1', titulo: 'Subir prototipo funcional del Portal Académico', materia: 'Desarrollo de Aplicaciones Web', fecha: '2026-11-08', prioridad: 'Alta', completada: false },
+                { id: 'TSK-2', titulo: 'Configurar replicación Maestro-Esclavo en PostgreSQL', materia: 'Bases de Datos Distribuidas', fecha: '2026-11-10', prioridad: 'Alta', completada: false },
+                { id: 'TSK-3', titulo: 'Documentar pruebas de penetración en red local', materia: 'Redes y Seguridad Informática', fecha: '2026-11-12', prioridad: 'Media', completada: false },
+                { id: 'TSK-4', titulo: 'Entregar matriz de riesgos del proyecto semestral', materia: 'Gestión de Proyectos de Software', fecha: '2026-11-04', prioridad: 'Media', completada: true }
+            ]
+        };
+
+        let appState = loadState();
+
+        function loadState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(defaultData));
+            } catch (e) {
+                return JSON.parse(JSON.stringify(defaultData));
+            }
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.warn('No se pudo guardar en localStorage');
+            }
+            updateAllViews();
+        }
+
+        function resetDemoData() {
+            appState = JSON.parse(JSON.stringify(defaultData));
+            saveState();
+            showToast('Datos de demostración restaurados correctamente', 'info');
+        }
+
+        // ==========================================
+        // NAVEGACIÓN ENTRE PESTAÑAS Y TEMA
+        // ==========================================
+        const tabTitles = {
+            dashboard: 'Panel Principal Institucional',
+            materias: 'Gestión de Materias y Calificaciones',
+            asistencias: 'Control y Semáforo de Asistencias',
+            archivos: 'Repositorio de Archivos y Apuntes',
+            reservas: 'Solicitud de Salones y Equipos de Cómputo',
+            tareas: 'Agenda Académica y Control de Entregas',
+            herramientas: 'Directorio Docente y Calculadora de Promedio'
+        };
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById(`view-${tabId}`);
+            if (target) target.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = 'nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold transition-all bg-brand-50 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400';
+                } else {
+                    btn.className = 'nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all';
+                }
+            });
+
+            document.getElementById('pageTitle').textContent = tabTitles[tabId] || 'UniPortal';
+            if (window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('sidebarOverlay').classList.add('hidden');
+            }
+        }
+
+        function toggleMobileSidebar() {
+            const sb = document.getElementById('sidebar');
+            const ov = document.getElementById('sidebarOverlay');
+            sb.classList.toggle('-translate-x-full');
+            ov.classList.toggle('hidden');
+        }
+
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const icon = document.getElementById('themeIcon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-amber-400';
+            }
+        }
+
+        // ==========================================
+        // FUNCIONES DE RENDERIZADO GLOBAL
+        // ==========================================
+        function updateAllViews() {
+            renderKPIsAndBadges();
+            renderDashboard();
+            renderMaterias();
+            renderAsistencias();
+            populateSubjectSelects();
+            renderFiles();
+            renderReservas();
+            renderTareas();
+            renderHerramientas();
+        }
+
+        function calculateSubjectAttendance(m) {
+            const total = m.presentes + m.retardos + m.justificados + m.faltas;
+            if (total === 0) return 100;
+            // 3 retardos equivalen a 1 falta
+            const faltasEfectivas = m.faltas + Math.floor(m.retardos / 3);
+            const efectivos = Math.max(0, total - faltasEfectivas);
+            return Math.round((efectivos / total) * 100);
+        }
+
+        function renderKPIsAndBadges() {
+            const numMaterias = appState.materias.length;
+            const numArchivos = appState.archivos.length;
+            const tareasPendientes = appState.tareas.filter(t => !t.completada).length;
+            const prestamosActivos = appState.prestamos.filter(p => p.estado !== 'Devuelto').length;
+
+            const promedioGlobal = numMaterias > 0
+                ? (appState.materias.reduce((acc, m) => acc + Number(m.calificacion), 0) / numMaterias).toFixed(1)
+                : '0.0';
+
+            const asistenciaGlobal = numMaterias > 0
+                ? Math.round(appState.materias.reduce((acc, m) => acc + calculateSubjectAttendance(m), 0) / numMaterias)
+                : 100;
+
+            document.getElementById('badgeMaterias').textContent = numMaterias;
+            document.getElementById('badgeArchivos').textContent = numArchivos;
+            document.getElementById('badgeTareas').textContent = tareasPendientes;
+
+            document.getElementById('kpiMaterias').textContent = numMaterias;
+            document.getElementById('kpiPromedioGlobal').textContent = `Promedio General: ${promedioGlobal}`;
+            document.getElementById('kpiAsistencia').textContent = `${asistenciaGlobal}%`;
+            document.getElementById('kpiReservas').textContent = `${prestamosActivos} Activos`;
+            document.getElementById('kpiArchivos').textContent = numArchivos;
+
+            // Actualizar barra de almacenamiento
+            const totalMB = (numArchivos * 5.3).toFixed(1);
+            document.getElementById('storageText').textContent = `${totalMB} MB / 5 GB`;
+            document.getElementById('storageBar').style.width = `${Math.min(100, numArchivos * 4)}%`;
+        }
+
+        // 1. RENDERIZAR DASHBOARD
+        function renderDashboard() {
+            const scheduleContainer = document.getElementById('dashboardScheduleList');
+            scheduleContainer.innerHTML = appState.materias.slice(0, 4).map(m => {
+                const pct = calculateSubjectAttendance(m);
+                const badgeColor = pct >= 85 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
+                return `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200/60 dark:border-slate-700 gap-3">
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 flex items-center justify-center font-bold text-xs shrink-0">
+                            ${m.codigo.split('-')[1] || '101'}
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm text-slate-800 dark:text-white">${m.nombre}</h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                <i class="fa-regular fa-clock mr-1"></i>${m.horario} • <i class="fa-solid fa-location-dot mx-1"></i>${m.aula}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 self-end sm:self-center">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-lg ${badgeColor}">${pct}% Asist.</span>
+                        <button onclick="quickAttendance('${m.id}', 'presente')" class="text-xs bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 text-emerald-600 border border-slate-200 dark:border-slate-600 px-2.5 py-1.5 rounded-lg font-medium transition" title="Registrar asistencia hoy">
+                            <i class="fa-solid fa-check"></i> Asistir
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const loansContainer = document.getElementById('dashboardActiveLoans');
+            const activeLoans = appState.prestamos.filter(p => p.estado !== 'Devuelto');
+            if (activeLoans.length === 0) {
+                loansContainer.innerHTML = `<p class="text-xs text-slate-400 py-3 text-center">No tienes salones ni equipos reservados en este momento.</p>`;
+            } else {
+                loansContainer.innerHTML = activeLoans.map(p => `
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200/60 dark:border-slate-700 flex items-center justify-between gap-2">
+                        <div class="overflow-hidden">
+                            <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md ${p.categoria === 'Salón' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}">${p.categoria}</span>
+                            <h5 class="text-xs font-bold mt-1 truncate">${p.recursoNombre}</h5>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">${p.fecha} • ${p.horario}</p>
+                        </div>
+                        <button onclick="returnLoan('${p.id}')" class="shrink-0 text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1.5 rounded-lg font-medium transition">
+                            Entregar
+                        </button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // 2. RENDERIZAR MATERIAS
+        function renderMaterias() {
+            const grid = document.getElementById('materiasGrid');
+            grid.innerHTML = appState.materias.map(m => {
+                const pct = calculateSubjectAttendance(m);
+                const filesCount = appState.archivos.filter(a => a.materia === m.nombre).length;
+                return `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-5 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-brand-50 dark:bg-brand-900/40 text-brand-600 dark:text-brand-400">${m.codigo}</span>
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400">
+                                    <i class="fa-solid fa-star text-[10px] mr-1"></i>Promedio: ${m.calificacion}
+                                </span>
+                                <button onclick="deleteMateria('${m.id}')" class="text-slate-400 hover:text-rose-500 p-1" title="Dar de baja materia">
+                                    <i class="fa-regular fa-trash-can text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <h3 class="font-bold text-base text-slate-900 dark:text-white mb-1">${m.nombre}</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chalkboard-user text-brand-500"></i> ${m.profesor}
+                        </p>
+
+                        <div class="space-y-2 text-xs bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500"><i class="fa-regular fa-clock w-4"></i> Horario:</span>
+                                <span class="font-medium">${m.horario}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500"><i class="fa-solid fa-door-open w-4"></i> Aula / Lab:</span>
+                                <span class="font-medium text-brand-600 dark:text-brand-400">${m.aula}</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-500"><i class="fa-regular fa-folder w-4"></i> Archivos:</span>
+                                <span class="font-medium">${filesCount} documentos</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/70">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-500">Asistencia Acumulada</span>
+                            <span class="font-bold ${pct < 80 ? 'text-rose-600' : 'text-emerald-600'}">${pct}%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mb-3">
+                            <div class="h-full ${pct < 80 ? 'bg-rose-500' : 'bg-emerald-500'} rounded-full" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="filterFilesBySubject('${m.nombre}')" class="py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-folder-open"></i> Ver Archivos
+                            </button>
+                            <button onclick="switchTab('asistencias')" class="py-2 px-3 rounded-xl bg-brand-50 dark:bg-brand-900/30 hover:bg-brand-100 text-brand-600 dark:text-brand-400 text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-user-check"></i> Asistencia
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // 3. RENDERIZAR CONTROL DE ASISTENCIAS
+        function renderAsistencias() {
+            const tbody = document.getElementById('asistenciasTableBody');
+            tbody.innerHTML = appState.materias.map(m => {
+                const total = m.presentes + m.retardos + m.justificados + m.faltas;
+                const pct = calculateSubjectAttendance(m);
+                const statusBadge = pct >= 85
+                    ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">Regular (Con Derecho)</span>`
+                    : pct >= 80
+                    ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">En Límite (Cuidado)</span>`
+                    : `<span class="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">Riesgo Extraordinario (<80%)</span>`;
+
+                return `
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30 transition">
+                    <td class="py-3.5 px-4">
+                        <p class="font-bold text-slate-800 dark:text-white">${m.nombre}</p>
+                        <p class="text-xs text-slate-500">${m.aula} • ${m.profesor}</p>
+                    </td>
+                    <td class="py-3.5 px-4 text-center font-semibold">${total}</td>
+                    <td class="py-3.5 px-4 text-center">
+                        <div class="inline-flex items-center gap-1.5 text-xs font-bold">
+                            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" title="Presentes">${m.presentes}P</span>
+                            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300" title="Retardos">${m.retardos}R</span>
+                            <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300" title="Justificados">${m.justificados}J</span>
+                            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300" title="Faltas">${m.faltas}F</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-extrabold text-sm ${pct < 80 ? 'text-rose-600' : 'text-slate-800 dark:text-white'}">${pct}%</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="w-36 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div class="h-full ${pct < 80 ? 'bg-rose-500' : pct < 85 ? 'bg-amber-500' : 'bg-emerald-500'}" style="width: ${pct}%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        <div class="inline-flex items-center gap-1">
+                            <button onclick="quickAttendance('${m.id}', 'presente')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition" title="Marcar Presente">
+                                <i class="fa-solid fa-check"></i> P
+                            </button>
+                            <button onclick="quickAttendance('${m.id}', 'retardo')" class="px-2.5 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold transition" title="Marcar Retardo">
+                                <i class="fa-regular fa-clock"></i> R
+                            </button>
+                            <button onclick="quickAttendance('${m.id}', 'justificado')" class="px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold transition" title="Marcar Justificante">
+                                <i class="fa-solid fa-notes-medical"></i> J
+                            </button>
+                            <button onclick="quickAttendance('${m.id}', 'falta')" class="px-2.5 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold transition" title="Marcar Falta">
+                                <i class="fa-solid fa-xmark"></i> F
+                            </button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+
+            const logsContainer = document.getElementById('asistenciaHistoryLogs');
+            logsContainer.innerHTML = appState.bitacoraAsistencia.slice(0, 6).map(item => `
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200/70 dark:border-slate-700 flex items-center justify-between text-xs">
+                    <div class="truncate pr-2">
+                        <p class="font-bold truncate">${item.materia}</p>
+                        <p class="text-slate-400">${item.fecha}</p>
+                    </div>
+                    <span class="px-2.5 py-1 rounded-lg font-semibold shrink-0 ${
+                        item.estado === 'Presente' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' :
+                        item.estado === 'Retardo' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' :
+                        item.estado === 'Justificado' ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300' :
+                        'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
+                    }">${item.estado}</span>
+                </div>
+            `).join('');
+        }
+
+        function quickAttendance(materiaId, tipo) {
+            const mat = appState.materias.find(m => m.id === materiaId);
+            if (!mat) return;
+
+            let label = 'Presente';
+            if (tipo === 'presente') { mat.presentes++; label = 'Presente'; }
+            if (tipo === 'retardo') { mat.retardos++; label = 'Retardo'; }
+            if (tipo === 'justificado') { mat.justificados++; label = 'Justificado'; }
+            if (tipo === 'falta') { mat.faltas++; label = 'Falta'; }
+
+            const dateInput = document.getElementById('asistenciaDateInput').value || '06 Nov 2026';
+            appState.bitacoraAsistencia.unshift({
+                fecha: dateInput,
+                materia: mat.nombre,
+                estado: label
+            });
+
+            saveState();
+            showToast(`Asistencia (${label}) registrada en ${mat.nombre}`, tipo === 'falta' ? 'warning' : 'success');
+        }
+
+        function markAllPresentToday() {
+            appState.materias.forEach(m => m.presentes++);
+            appState.bitacoraAsistencia.unshift({
+                fecha: 'Hoy (Masivo)',
+                materia: 'Todas las materias del día',
+                estado: 'Presente'
+            });
+            saveState();
+            showToast('Se registró asistencia presente en todas tus materias', 'success');
+        }
+
+        // 4. RENDERIZAR ARCHIVOS
+        function populateSubjectSelects() {
+            const filterSelect = document.getElementById('fileSubjectFilter');
+            const uploadSelect = document.getElementById('uploadFileSubject');
+            const taskSelect = document.getElementById('taskMateriaSelect');
+
+            const currentFilterVal = filterSelect.value || 'ALL';
+            const optionsHtml = appState.materias.map(m => `<option value="${m.nombre}">${m.nombre}</option>`).join('');
+
+            filterSelect.innerHTML = `<option value="ALL">Todas las materias</option>` + optionsHtml;
+            filterSelect.value = currentFilterVal;
+            uploadSelect.innerHTML = optionsHtml;
+            taskSelect.innerHTML = optionsHtml;
+        }
+
+        function setFileCategory(cat) {
+            currentFileCategory = cat;
+            document.querySelectorAll('.file-cat-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = 'file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white transition';
+                } else {
+                    btn.className = 'file-cat-btn px-3.5 py-1.5 rounded-xl text-xs font-medium bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 transition';
+                }
+            });
+            renderFiles();
+        }
+
+        function filterFilesBySubject(subjectName) {
+            switchTab('archivos');
+            document.getElementById('fileSubjectFilter').value = subjectName;
+            renderFiles();
+        }
+
+        function getFileIcon(tipo) {
+            switch (tipo) {
+                case 'pdf': return { icon: 'fa-file-pdf', color: 'text-rose-500 bg-rose-50 dark:bg-rose-900/30' };
+                case 'code': return { icon: 'fa-file-code', color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/30' };
+                case 'excel': return { icon: 'fa-file-excel', color: 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' };
+                case 'word': return { icon: 'fa-file-word', color: 'text-sky-600 bg-sky-50 dark:bg-sky-900/30' };
+                default: return { icon: 'fa-file-zipper', color: 'text-amber-500 bg-amber-50 dark:bg-amber-900/30' };
+            }
+        }
+
+        function renderFiles() {
+            const search = (document.getElementById('fileSearchInput').value || '').toLowerCase();
+            const subjectFilter = document.getElementById('fileSubjectFilter').value;
+            const grid = document.getElementById('filesGrid');
+
+            const filtered = appState.archivos.filter(f => {
+                const matchCat = currentFileCategory === 'ALL' || f.categoria === currentFileCategory;
+                const matchSub = subjectFilter === 'ALL' || f.materia === subjectFilter;
+                const matchSearch = f.nombre.toLowerCase().includes(search) || f.materia.toLowerCase().includes(search);
+                return matchCat && matchSub && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full bg-white dark:bg-slate-800 rounded-2xl p-10 text-center border border-slate-200 dark:border-slate-700">
+                        <i class="fa-regular fa-folder-open text-3xl text-slate-400 mb-2"></i>
+                        <p class="font-semibold text-sm">No se encontraron archivos con estos filtros</p>
+                        <button onclick="openUploadModal()" class="mt-3 text-xs text-brand-600 font-semibold hover:underline">+ Subir un nuevo documento</button>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(f => {
+                const st = getFileIcon(f.tipo);
+                return `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 shadow-xs hover:shadow-md transition flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-3">
+                            <div class="w-11 h-11 rounded-xl ${st.color} flex items-center justify-center text-xl">
+                                <i class="fa-solid ${st.icon}"></i>
+                            </div>
+                            <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">${f.categoria}</span>
+                        </div>
+                        <h4 class="font-bold text-sm truncate" title="${f.nombre}">${f.nombre}</h4>
+                        <p class="text-xs text-brand-600 dark:text-brand-400 font-medium truncate mt-0.5">${f.materia}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/70 flex items-center justify-between text-xs text-slate-400">
+                        <span>${f.tamano} • ${f.fecha}</span>
+                        <div class="flex items-center gap-1">
+                            <button onclick="downloadSimulatedFile('${f.nombre}')" class="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300" title="Descargar archivo">
+                                <i class="fa-solid fa-download"></i>
+                            </button>
+                            <button onclick="deleteFile('${f.id}')" class="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/30 text-rose-500" title="Eliminar">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function handleRealFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('uploadFileTitle').value = file.name;
+                document.getElementById('selectedFileNameDisplay').textContent = `Archivo seleccionado: ${file.name}`;
+            }
+        }
+
+        function openUploadModal() {
+            populateSubjectSelects();
+            document.getElementById('modalUpload').classList.remove('hidden');
+        }
+
+        function submitFileUpload(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('uploadFileTitle').value.trim();
+            const materia = document.getElementById('uploadFileSubject').value;
+            const categoria = document.getElementById('uploadFileCategory').value;
+
+            const ext = nombre.split('.').pop().toLowerCase();
+            let tipo = 'pdf';
+            if (['py', 'js', 'sql', 'ipynb', 'cpp', 'html'].includes(ext)) tipo = 'code';
+            else if (['xls', 'xlsx', 'csv'].includes(ext)) tipo = 'excel';
+            else if (['doc', 'docx'].includes(ext)) tipo = 'word';
+            else if (['zip', 'rar'].includes(ext)) tipo = 'zip';
+
+            appState.archivos.unshift({
+                id: 'FIL-' + Date.now(),
+                nombre,
+                materia,
+                categoria,
+                tamano: (Math.random() * 6 + 1.2).toFixed(1) + ' MB',
+                fecha: 'Hoy',
+                tipo
+            });
+
+            closeModal('modalUpload');
+            e.target.reset();
+            document.getElementById('selectedFileNameDisplay').textContent = 'Haz clic para elegir un archivo de tu equipo';
+            saveState();
+            showToast(`Archivo "${nombre}" subido exitosamente`, 'success');
+        }
+
+        function downloadSimulatedFile(nombre) {
+            const blob = new Blob([`Contenido académico del documento: ${nombre}\nGenerado desde UniPortal Pro.`], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nombre;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`Descargando ${nombre}...`, 'info');
+        }
+
+        function deleteFile(id) {
+            appState.archivos = appState.archivos.filter(f => f.id !== id);
+            saveState();
+            showToast('Archivo eliminado del repositorio', 'info');
+        }
+
+        // 5. RENDERIZAR RESERVA DE SALONES Y EQUIPOS DE CÓMPUTO
+        function filterResources(tipo) {
+            currentResourceFilter = tipo;
+            document.querySelectorAll('.res-filter-btn').forEach(btn => {
+                if (btn.dataset.res === tipo) {
+                    btn.className = 'res-filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white';
+                } else {
+                    btn.className = 'res-filter-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200';
+                }
+            });
+            renderReservas();
+        }
+
+        function renderReservas() {
+            const catalogGrid = document.getElementById('resourcesCatalogGrid');
+            const filtered = appState.recursos.filter(r => currentResourceFilter === 'ALL' || r.tipo === currentResourceFilter);
+
+            catalogGrid.innerHTML = filtered.map(r => `
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200/80 dark:border-slate-700 p-4 shadow-xs flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="w-10 h-10 rounded-xl ${r.tipo === 'Salón' ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400' : 'bg-amber-50 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400'} flex items-center justify-center text-lg">
+                                <i class="fa-solid ${r.icono}"></i>
+                            </div>
+                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-full ${r.disponible ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'}">
+                                ${r.disponible ? 'Disponible Ahora' : 'En Préstamo / Ocupado'}
+                            </span>
+                        </div>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">${r.tipo} • ${r.ubicacion}</span>
+                        <h4 class="font-bold text-sm mt-0.5">${r.nombre}</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${r.specs}</p>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-700/60">
+                        ${r.disponible
+                            ? `<button onclick="openReservaModal('${r.id}')" class="w-full py-2 px-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold transition flex items-center justify-center gap-1.5">
+                                <i class="fa-regular fa-calendar-check"></i> Solicitar ${r.tipo}
+                               </button>`
+                            : `<button disabled class="w-full py-2 px-3 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-400 text-xs font-semibold cursor-not-allowed">
+                                Ocupado temporalmente
+                               </button>`
+                        }
+                    </div>
+                </div>
+            `).join('');
+
+            const tbody = document.getElementById('loansTableBody');
+            tbody.innerHTML = appState.prestamos.map(p => `
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/30">
+                    <td class="py-3 px-4">
+                        <span class="text-xs font-mono text-slate-400 block">${p.id}</span>
+                        <span class="font-bold text-slate-800 dark:text-white">${p.recursoNombre}</span>
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="text-xs font-semibold px-2.5 py-0.5 rounded-md ${p.categoria === 'Salón' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'}">${p.categoria}</span>
+                    </td>
+                    <td class="py-3 px-4 text-xs">
+                        <p class="font-semibold">${p.fecha}</p>
+                        <p class="text-slate-500">${p.horario} hrs</p>
+                    </td>
+                    <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300">${p.motivo}</td>
+                    <td class="py-3 px-4">
+                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${
+                            p.estado === 'Devuelto'
+                                ? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                                : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+                        }">${p.estado}</span>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        ${p.estado !== 'Devuelto'
+                            ? `<button onclick="returnLoan('${p.id}')" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                                Liberar / Devolver
+                               </button>`
+                            : `<span class="text-xs text-slate-400">Finalizado</span>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openReservaModal(preselectedId) {
+            const select = document.getElementById('reservaResourceSelect');
+            const disponibles = appState.recursos.filter(r => r.disponible);
+            select.innerHTML = disponibles.map(r => `<option value="${r.id}">[${r.tipo}] ${r.nombre}</option>`).join('');
+            if (preselectedId) select.value = preselectedId;
+            document.getElementById('reservaFecha').value = '2026-11-06';
+            document.getElementById('modalReserva').classList.remove('hidden');
+        }
+
+        function submitReserva(e) {
+            e.preventDefault();
+            const resId = document.getElementById('reservaResourceSelect').value;
+            const recurso = appState.recursos.find(r => r.id === resId);
+            if (!recurso) return;
+
+            const fecha = document.getElementById('reservaFecha').value;
+            const horario = document.getElementById('reservaHorario').value;
+            const motivo = document.getElementById('reservaMotivo').value.trim();
+
+            recurso.disponible = false;
+            appState.prestamos.unshift({
+                id: 'SOL-' + Math.floor(100 + Math.random() * 900),
+                recursoId: recurso.id,
+                recursoNombre: recurso.nombre,
+                categoria: recurso.tipo,
+                fecha,
+                horario,
+                motivo,
+                estado: 'Aprobado / Activo'
+            });
+
+            closeModal('modalReserva');
+            e.target.reset();
+            saveState();
+            showToast(`Reserva confirmada: ${recurso.nombre}`, 'success');
+        }
+
+        function returnLoan(loanId) {
+            const loan = appState.prestamos.find(p => p.id === loanId);
+            if (!loan) return;
+            loan.estado = 'Devuelto';
+
+            const recurso = appState.recursos.find(r => r.id === loan.recursoId);
+            if (recurso) recurso.disponible = true;
+
+            saveState();
+            showToast(`Has devuelto/liberado: ${loan.recursoNombre}`, 'info');
+        }
+
+        // 6. GESTIÓN DE MATERIAS Y TAREAS (MODALES)
+        function openMateriaModal() {
+            document.getElementById('modalMateria').classList.remove('hidden');
+        }
+
+        function submitNewMateria(e) {
+            e.preventDefault();
+            const nombre = document.getElementById('matNombre').value.trim();
+            const codigo = document.getElementById('matCodigo').value.trim();
+            const aula = document.getElementById('matSalon').value.trim();
+            const profesor = document.getElementById('matProfesor').value.trim();
+            const horario = document.getElementById('matHorario').value.trim();
+
+            appState.materias.push({
+                id: 'MAT-' + Date.now(),
+                codigo,
+                nombre,
+                profesor,
+                correoProf: profesor.toLowerCase().replace(/[^a-z]/g, '').slice(0, 8) + '@universidad.edu.mx',
+                cubiculo: 'Edificio Académico - Sala Docente',
+                horario,
+                aula,
+                color: 'indigo',
+                calificacion: 9.0,
+                presentes: 10,
+                retardos: 0,
+                justificados: 0,
+                faltas: 0
+            });
+
+            closeModal('modalMateria');
+            e.target.reset();
+            saveState();
+            showToast(`Materia "${nombre}" agregada exitosamente`, 'success');
+        }
+
+        function deleteMateria(id) {
+            appState.materias = appState.materias.filter(m => m.id !== id);
+            saveState();
+            showToast('Materia dada de baja', 'info');
+        }
+
+        function renderTareas() {
+            const pendingEl = document.getElementById('pendingTasksList');
+            const completedEl = document.getElementById('completedTasksList');
+
+            const pending = appState.tareas.filter(t => !t.completada);
+            const completed = appState.tareas.filter(t => t.completada);
+
+            pendingEl.innerHTML = pending.length === 0
+                ? `<p class="text-xs text-slate-400 py-4 text-center">¡Todo al día! No tienes entregas pendientes.</p>`
+                : pending.map(t => `
+                    <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200/70 dark:border-slate-700 flex items-center justify-between gap-3">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" onchange="toggleTask('${t.id}')" class="mt-1 w-4 h-4 accent-brand-600 rounded cursor-pointer">
+                            <div>
+                                <h4 class="font-bold text-xs sm:text-sm">${t.titulo}</h4>
+                                <p class="text-xs text-brand-600 dark:text-brand-400">${t.materia}</p>
+                                <span class="text-[11px] text-slate-400"><i class="fa-regular fa-calendar mr-1"></i>Entrega: ${t.fecha}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
+                            t.prioridad === 'Alta' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                        }">${t.prioridad}</span>
+                    </div>
+                `).join('');
+
+            completedEl.innerHTML = completed.length === 0
+                ? `<p class="text-xs text-slate-400 py-4 text-center">Aún no hay tareas marcadas como completadas.</p>`
+                : completed.map(t => `
+                    <div class="p-3.5 rounded-xl bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700 flex items-center justify-between gap-3 opacity-75">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" checked onchange="toggleTask('${t.id}')" class="w-4 h-4 accent-emerald-600 rounded cursor-pointer">
+                            <div>
+                                <h4 class="font-semibold text-xs line-through text-slate-500">${t.titulo}</h4>
+                                <p class="text-[11px] text-slate-400">${t.materia}</p>
+                            </div>
+                        </div>
+                        <button onclick="deleteTask('${t.id}')" class="text-slate-400 hover:text-rose-500 text-xs">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </button>
+                    </div>
+                `).join('');
+        }
+
+        function openTaskModal() {
+            populateSubjectSelects();
+            document.getElementById('taskFecha').value = '2026-11-12';
+            document.getElementById('modalTask').classList.remove('hidden');
+        }
+
+        function submitNewTask(e) {
+            e.preventDefault();
+            const titulo = document.getElementById('taskTitulo').value.trim();
+            const materia = document.getElementById('taskMateriaSelect').value;
+            const fecha = document.getElementById('taskFecha').value;
+            const prioridad = document.getElementById('taskPrioridad').value;
+
+            appState.tareas.unshift({
+                id: 'TSK-' + Date.now(),
+                titulo,
+                materia,
+                fecha,
+                prioridad,
+                completada: false
+            });
+
+            closeModal('modalTask');
+            e.target.reset();
+            saveState();
+            showToast('Nueva tarea agregada a tu agenda', 'success');
+        }
+
+        function toggleTask(id) {
+            const t = appState.tareas.find(item => item.id === id);
+            if (t) {
+                t.completada = !t.completada;
+                saveState();
+            }
+        }
+
+        function deleteTask(id) {
+            appState.tareas = appState.tareas.filter(item => item.id !== id);
+            saveState();
+        }
+
+        // 7. HERRAMIENTAS: DIRECTORIO Y CALCULADORA PROMEDIO
+        function renderHerramientas() {
+            const gpaContainer = document.getElementById('gpaInputsContainer');
+            gpaContainer.innerHTML = appState.materias.map(m => `
+                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200/60 dark:border-slate-700 text-xs">
+                    <span class="font-medium truncate pr-2">${m.nombre}</span>
+                    <input type="number" step="0.1" min="5" max="10" value="${m.calificacion}"
+                        onchange="updateSubjectGrade('${m.id}', this.value)"
+                        class="w-16 text-center font-bold rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 py-1">
+                </div>
+            `).join('');
+
+            const total = appState.materias.reduce((acc, m) => acc + Number(m.calificacion), 0);
+            const avg = appState.materias.length ? (total / appState.materias.length).toFixed(2) : '0.0';
+            document.getElementById('calculatedGpaValue').textContent = avg;
+
+            const statusEl = document.getElementById('gpaStatusText');
+            if (avg >= 9.0) {
+                statusEl.textContent = 'Excelencia Académica (Candidato a Beca 100%)';
+                statusEl.className = 'text-xs font-semibold text-emerald-600';
+            } else if (avg >= 8.0) {
+                statusEl.textContent = 'Alumno Regular en Buen Estado';
+                statusEl.className = 'text-xs font-semibold text-brand-600';
+            } else {
+                statusEl.textContent = 'Promedio Bajo (Requiere Tutoría Académica)';
+                statusEl.className = 'text-xs font-semibold text-amber-600';
+            }
+
+            const dirGrid = document.getElementById('profesoresDirectoryGrid');
+            dirGrid.innerHTML = appState.materias.map(m => `
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-700/40 border border-slate-200/70 dark:border-slate-700 flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-100 dark:bg-brand-900/50 text-brand-600 dark:text-brand-400 font-bold flex items-center justify-center shrink-0 text-xs">
+                        ${m.profesor.split(' ').slice(-2).map(n => n[0]).join('')}
+                    </div>
+                    <div class="text-xs overflow-hidden">
+                        <h4 class="font-bold text-slate-800 dark:text-white truncate">${m.profesor}</h4>
+                        <p class="text-brand-600 dark:text-brand-400 font-medium truncate">${m.nombre}</p>
+                        <p class="text-slate-500 mt-1"><i class="fa-solid fa-building-user mr-1"></i>${m.cubiculo}</p>
+                        <p class="text-slate-500 truncate"><i class="fa-regular fa-envelope mr-1"></i>${m.correoProf}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateSubjectGrade(id, val) {
+            const m = appState.materias.find(item => item.id === id);
+            if (m) {
+                m.calificacion = Math.min(10, Math.max(0, parseFloat(val) || 0));
+                saveState();
+                showToast(`Calificación actualizada en ${m.nombre}`, 'info');
+            }
+        }
+
+        // ==========================================
+        // UTILIDADES: MODALES Y NOTIFICACIONES TOAST
+        // ==========================================
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-emerald-600 text-white',
+                warning: 'bg-amber-500 text-white',
+                info: 'bg-slate-800 dark:bg-slate-700 text-white'
+            };
+            const icons = {
+                success: 'fa-circle-check',
+                warning: 'fa-triangle-exclamation',
+                info: 'fa-circle-info'
+            };
+
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-lg text-xs font-semibold fade-in ${colors[type] || colors.info}`;
+            toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} text-sm"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Inicialización al cargar la ventana
+        window.onload = function () {
+            document.getElementById('asistenciaDateInput').value = '2026-11-06';
+            updateAllViews();
+        };
+    </script>
+</body>
+</html>
