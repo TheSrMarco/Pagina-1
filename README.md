@@ -27,3 +27,5 @@ La arquitectura prevista usa **Flutter y Dart** para web, Android e iOS, **Djang
 - Gabriel Arturo Najera Esparza
 - Luis Felipe Ambrosio Velazquez
 - Francisco Hernandez Antonio
+
+- Este es un documento para buenas practicas
