@@ -1,0 +1,17 @@
+{
+  "demo": true,
+  "average": 9.1,
+  "attendance": 91,
+  "subject_count": 6,
+  "pending_tasks": 3,
+  "active_loans": 2,
+  "file_count": 8,
+  "subjects": [
+    "Desarrollo de Aplicaciones Web",
+    "Bases de Datos Distribuidas",
+    "Redes y Seguridad Informática",
+    "Inteligencia Artificial Aplicada",
+    "Arquitectura de Computadoras y Nube",
+    "Gestión de Proyectos de Software"
+  ]
+}
