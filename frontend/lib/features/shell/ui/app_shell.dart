@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../dashboard/ui/dashboard_view.dart';
+import '../../privacy/ui/privacy_notice_view.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
@@ -12,14 +13,15 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _selected = 0;
   static const _sections = [
-    ('Panel Principal', Icons.dashboard_outlined),
-    ('Mis Materias', Icons.menu_book_outlined),
-    ('Control de Asistencias', Icons.event_available_outlined),
-    ('Gestor de Archivos', Icons.folder_open_outlined),
-    ('Salones y Equipos', Icons.computer_outlined),
-    ('Agenda y Tareas', Icons.checklist_outlined),
-    ('Refuerzo Académico', Icons.psychology_outlined),
-    ('Directorio y Promedio', Icons.calculate_outlined),
+    ('Panel Principal', Icons.dashboard_outlined, DashboardView()),
+    ('Mis Materias', Icons.menu_book_outlined, null),
+    ('Control de Asistencias', Icons.event_available_outlined, null),
+    ('Gestor de Archivos', Icons.folder_open_outlined, null),
+    ('Salones y Equipos', Icons.computer_outlined, null),
+    ('Agenda y Tareas', Icons.checklist_outlined, null),
+    ('Refuerzo Académico', Icons.psychology_outlined, null),
+    ('Directorio y Promedio', Icons.calculate_outlined, null),
+    ('Aviso de privacidad', Icons.privacy_tip_outlined, PrivacyNoticeView()),
   ];
 
   @override
@@ -71,20 +73,18 @@ class _AppShellState extends State<AppShell> {
             child: IndexedStack(
               index: _selected,
               children: [
-                const DashboardView(),
-                ..._sections
-                    .skip(1)
-                    .map(
-                      (section) => Center(
+                for (final (title, icon, page) in _sections)
+                  page ??
+                      Center(
                         child: Padding(
                           padding: const EdgeInsets.all(24),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(section.$2, size: 48),
+                              Icon(icon, size: 48),
                               const SizedBox(height: 16),
                               Text(
-                                section.$1,
+                                title,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 8),
@@ -96,7 +96,6 @@ class _AppShellState extends State<AppShell> {
                           ),
                         ),
                       ),
-                    ),
               ],
             ),
           ),
