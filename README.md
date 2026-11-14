@@ -1,5 +1,14 @@
 # PIUTTEC (2.0)
 
+<p align="center">
+  <img src="docs/assets/piuttec-ii-logo.png" alt="Logo principal de PIUTTEC II" width="820">
+</p>
+
+<p align="center">
+  <strong>Ícono para Android</strong><br>
+  <img src="docs/assets/piuttec-ii-android.png" alt="Ícono de PIUTTEC II para Android" width="240">
+</p>
+
 Prototipo web de una plataforma de gestión académica, trámites institucionales y refuerzo del aprendizaje para la Universidad Tecnológica de Tecámac. El proyecto propone ampliar PIUTTEC para que estudiantes, docentes y personal administrativo puedan consultar información académica y gestionar solicitudes desde un mismo lugar.
 
 ## Qué incluye el prototipo
